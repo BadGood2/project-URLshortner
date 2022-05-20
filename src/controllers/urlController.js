@@ -67,14 +67,14 @@ const getUrlCode = async function (req, res) {
         let urlCode = req.params.urlCode
         if (!isValid(urlCode)) return res.status(400).send({ status: false, msg: "Bad or Missing UrlCode" })
 
-        let result = await urlModel.findOne({ urlCode: urlCode }).select({ _id: 0, longUrl: 1 })
-        if (!result) return res.status(404).send({ status: false, message: "No URL present with that urlCode" })
-
         
         let urlData = await GET_ASYNC(`${req.params.urlCode}`)
         if(urlData){
             return res.redirect(302, JSON.parse(urlData))
         }else{
+            let result = await urlModel.findOne({ urlCode: urlCode }).select({ _id: 0, longUrl: 1 })
+            if (!result) return res.status(404).send({ status: false, message: "No URL present with that urlCode" })
+            
             await SET_ASYNC(`${urlCode}`, JSON.stringify(result.longUrl))
             res.redirect(302, result.longUrl)
         }
